@@ -3,7 +3,6 @@ package com.invillia.acme.model;
 import java.io.Serializable;
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,6 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+/**
+ * TODO
+ * @author Daniel
+ *
+ */
 @Entity
 public class Refund implements Serializable {
 
@@ -20,7 +24,6 @@ public class Refund implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "refund_id")
 	private UUID id;
 
 	@Enumerated(EnumType.STRING)

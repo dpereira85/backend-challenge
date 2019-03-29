@@ -16,6 +16,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+/**
+ * TODO
+ * @author Daniel
+ *
+ */
 @Entity
 public class Payment implements Serializable {
 
@@ -23,11 +28,7 @@ public class Payment implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "payment_id")
 	private UUID id;
-
-	@Enumerated(EnumType.STRING)
-	private PaymentStatus status;
 
 	@Column(name = "credit_card")
 	private Long creditCard;
@@ -35,6 +36,9 @@ public class Payment implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "payment_date")
 	private Date paymentDate;
+	
+	@Enumerated(EnumType.STRING)
+	private PaymentStatus status;
 
 	@OneToOne
 	@JoinColumn(name = "order_id")

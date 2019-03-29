@@ -31,7 +31,6 @@ public class Order implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name="order_id")
 	private UUID id;
 	
 	private String address;
