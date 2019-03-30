@@ -11,8 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 /**
- * Esta classe representa uma Store. A Store é necessária para a efetuação de uma Order
- * no sistema.
+ * Esta classe representa uma Store. A Store é necessária para a efetuação de
+ * uma Order no sistema.
  * 
  * @author Daniel
  * @version 1.0
@@ -25,12 +25,21 @@ public class Store implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
-	
+
 	private String name;
 	private String address;
-	
-	@OneToMany (mappedBy="store")
+
+	@OneToMany(mappedBy = "store")
 	private List<Order> orders;
+
+	public Store() {
+	}
+
+	public Store(String name, String address) {
+		super();
+		this.name = name;
+		this.address = address;
+	}
 
 	public UUID getId() {
 		return id;
