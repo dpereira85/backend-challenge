@@ -24,6 +24,15 @@ import com.invillia.acme.exception.ApiError;
 import com.invillia.acme.model.Store;
 import com.invillia.acme.repository.StoreRepository;
 
+/**
+ * Endpoint que contém as funcionalidades de criar, buscar e atualizar objetos da entidade Store. <br><br>
+ * 
+ * O caminho completo dele é "{server}/api/v1/stores".
+ * 
+ * @author Daniel
+ * @version 1.0
+ *
+ */
 @RestController
 public class StoreController {
 
@@ -34,12 +43,20 @@ public class StoreController {
 		this.repository = repository;
 	}
 
-	/** TODO
-	 * @param id
-	 * @return
+	/**
+	 * Recurso GET que busca e retorna uma Store a partir do seu id.
+	 * 
+	 * <br><br>
+	 * 
+	 * Caso o ID seja válido e a Store existir, o código do retorno será 200 e o conteúdo será a Store pesquisada.<br>
+	 * Se o ID for inválido, o código será 400 e o retorno será do tipo ApiError.<br>
+	 * Se o ID for válido mas a Store não existe, o retorno será 404 e o conteúdo também será do tipo ApiError.
+	 * 
+	 * @param id - <b>UUID</b> da Store desejada.
+	 * @return Store ou ApiError.
 	 */
 	@GetMapping("/stores/{id}")
-	public ResponseEntity<Object> retrieveStoreById(@PathVariable String id) {
+	public ResponseEntity<?> retrieveStoreById(@PathVariable String id) {
 		if (isEmpty(id)) {
 			return handleError(HttpStatus.BAD_REQUEST, "O ID não foi informado");
 		}
@@ -56,26 +73,32 @@ public class StoreController {
 		}
 	}
 	
+	/**
+	 * Recurso GET que busca e retorna uma Store a partir das suas propriedades <b>name</b> ou <b>address</b>.
+	 * 
+	 * <br><br>
+	 * 
+	 * Retorna código 404 e o tipo ApiError caso nenhuma Store exista com os parâmetros. Se existir ao menos uma,
+	 *  retorna uma List&lt;Store&gt; com código 200.
+	 * 
+	 * @param name - Nome da Store.
+	 * @param address - Endereço da Store.
+	 * @return List&lt;Store&gt; ou ApiError
+	 */
 	@GetMapping("/stores")
-	public ResponseEntity<Object> retrieveStoreByParameters(@RequestParam(value = "name", required = false) String name,
+	public ResponseEntity<?> retrieveStoreByParameters(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "address", required = false) String address) {
 		
 		List<Store> stores = null;
 		
-		// Valida os inputs e decide qual query utilizar dependendo de quais campos foram preenchidos.
+		// Valida os inputs
 		if (isEmpty(name) && isEmpty(address)) {
-			return handleError(HttpStatus.BAD_REQUEST, "Nenhum parâmetro válido foi informado. \n Os parâmetros aceitos são 'name' e 'address'. "
+			return handleError(HttpStatus.BAD_REQUEST, "Nenhum parâmetro válido foi informado. \n"
+					+ " Os parâmetros aceitos são 'name' e 'address'. "
 					+ "Para consultar pelo ID, utilize o caminho //stores//{id}");
 		}
-		else if (!isEmpty(name) && !isEmpty(address)) {
-			stores = repository.findByNameIgnoreCaseContainingOrAddressIgnoreCaseContaining(name, address);
-		}
-		else if (!isEmpty(name)) {
-			stores = repository.findByNameIgnoreCaseContaining(name);
-		}
-		else if (!isEmpty(address)){
-			stores = repository.findByAddressIgnoreCaseContaining(address);
-		}
+		
+		stores = repository.findByParameters(name, address);
 
 		// Se os campos são válidos mas nenhuma Store foi encontrada, retorna 404. 
 		if (stores == null || stores.isEmpty()) {
@@ -87,13 +110,16 @@ public class StoreController {
 	}
 
 	/** 
-	 * TODO
-	 * @param newStore
-	 * @return
+	 * Recurso POST que recebe um JSON do tipo Store e a persiste no banco de dados. <br>
+	 * Retorna o código 400 se as informações da Store estiverem incompletas ou malformadas,
+	 * e código 201 Created juntamente com os dados da nova Store se a inserção for bem sucedida.
+	 * 
+	 * @param newStore - Nova Store para persistir.
+	 * @return Store ou ApiError
 	 * @throws URISyntaxException 
 	 */
 	@PostMapping("/stores")
-	public ResponseEntity<Object> createStore(@RequestBody Store newStore) throws URISyntaxException {
+	public ResponseEntity<?> createStore(@RequestBody Store newStore) throws URISyntaxException {
 
 		// Validação dos inputs
 		if (newStore == null) {
@@ -102,6 +128,9 @@ public class StoreController {
 		else if (isEmpty(newStore.getAddress()) || isEmpty(newStore.getName())) {
 			return handleError(HttpStatus.BAD_REQUEST, "Os campos 'name' e 'address' são obrigatórios.");
 		}
+		
+		// Impede que alguém tente utilizar o método POST para atualizar uma Store, informando o UUID no request
+		newStore.setId(null);
 		
 		// Persiste a Store e retorna o objeto para consulta (incluindo o novo ID)
 		Store store = repository.save(newStore);
@@ -116,14 +145,16 @@ public class StoreController {
 	}
 
 	/**
-	 * TODO
+	 * Recurso PUT que recebe um JSON do tipo Store e atualiza os dados dela no banco. <br>
+	 * Retorna código 200 e os dados da entidade salva em caso de sucesso, ou código 400 e ApiError
+	 * em caso de dados inválidos no JSON, ou código 400 se o ID informado não existir.
 	 * 
-	 * @param newStore
-	 * @param id
-	 * @return
+	 * @param newStore - JSON que contém os dados para atualizar da Store.
+	 * @param id - UUID da Store que se deseja atualizar.
+	 * @return - Store ou ApiError.
 	 */
 	@PutMapping("/stores/{id}")
-	public ResponseEntity<Object> updateStore(@RequestBody Store newStore, @PathVariable String id) throws Exception {
+	public ResponseEntity<?> updateStore(@RequestBody Store newStore, @PathVariable String id) throws Exception {
 		
 		// Validação dos inputs
 		if (newStore == null) {
@@ -137,7 +168,7 @@ public class StoreController {
 		}
 		
 		// Somente os campos informados serão atualizados. Caso o request venha apenas com 'name' ou 'address', o valor
-		// antigo do campo omitido é preservado.
+		// antigo do campo omitido é preservado. 
 		try {
 			UUID uuid = UUID.fromString(id);
 			newStore.setId(uuid);
@@ -169,8 +200,8 @@ public class StoreController {
 		return store;
 	}
 	
-	private ResponseEntity<Object> handleError(HttpStatus status, String message) {
-		return new ResponseEntity<Object>(new ApiError(status, message), status);
+	private ResponseEntity<?> handleError(HttpStatus status, String message) {
+		return new ResponseEntity<>(new ApiError(status, message), status);
 	}
 
 }

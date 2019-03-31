@@ -9,8 +9,14 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>invillia</name>
-	<description>Demo project for Spring Boot</description>
+	<name>Invillia</name>
+	<description>Prova de admissão - Challenge backend</description>
+	<developers>
+		<developer>
+			<name>Daniel Pereira</name>
+			<url>https://github.com/dpereira85</url>
+		</developer>
+	</developers>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
